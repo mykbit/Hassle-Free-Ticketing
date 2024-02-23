@@ -10,7 +10,7 @@ load_dotenv()
 def init_db():
     # Retrieve database credentials from the environment
     db_host = os.environ.get('DATABASE_HOST')
-    db_port = int(os.environ.get('DATABASE_PORT'))
+    db_port = os.environ.get('DATABASE_PORT')
     db_user = os.environ.get('DATABASE_USER')
     db_password = os.environ.get('DATABASE_PASSWORD')
     db_name = os.environ.get('DATABASE_NAME')
@@ -27,3 +27,37 @@ def init_db():
     cursor = conn.cursor()
 
     return cursor
+
+
+#   Insert Event into Database
+def insert(event_name, event_date, payment_address):
+    # Access DB
+    databaseCursor = init_db()
+
+    # Insert a new event into the "events" table
+    databaseCursor.execute(
+        "INSERT INTO events (event_name, event_date, payment_link) VALUES (%s, %S, %s)", 
+        (event_name, event_date, payment_address)
+    )
+
+    # Insert into Database then close. 
+    databaseCursor.commit()
+    databaseCursor.close()
+    return
+
+
+#   Insert User into Databse
+def insert(name, email, revolut_tag, payment_status, event):
+    databaseCursor = init_db()
+
+    databaseCursor.execute(
+        "INSERT INTO users (name, email, revolut_tag, payment_status, event) VALUES (%s, %s, %s, %s, %s, %s)",
+        (name, email, revolut_tag, payment_status, event)
+    )
+
+    databaseCursor.commit()
+    databaseCursor.close()
+    return
+
+    
+
