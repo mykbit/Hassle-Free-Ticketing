@@ -1,0 +1,8 @@
+x._*
+.DS_Store
+.Trashes
+.vscode
+*.log
+__pycache__/
+.env
+.venv
