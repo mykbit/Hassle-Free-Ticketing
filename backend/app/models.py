@@ -1,6 +1,6 @@
 import pymysql
 import os
-
+import json
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
 from dotenv import load_dotenv
 
@@ -183,6 +183,16 @@ def updateUser(userID, name, email, revolutTag, payment_status):
     return
 
 
+def getEventIdJson(conn, eventID):
+    database = init_db()
+    databaseCursor = database.cursor()
+    databaseCursor.execute("SELECT eventID FROM events WHERE eventID = %s", (eventID,))
+    event = databaseCursor.fetchone()
+    database.close()
+    #return as json
+    return json.dumps(event)  
+
+
 # Check whether user has paid by going through registrants in an event and check to see if the 
 # registant is in bankStatement (Array for now)
 # If entry exists we set the status of the transaction as paid.
@@ -223,7 +233,3 @@ def hasPaid(db, event, user, bankStatement):
 # user_to_check = "user_to_check"
 # bank_statement = ["user1", "user2", "user3"]  # Replace with your actual bank statement array
 # hasPaid(db, event_table_name, user_to_check, bank_statement)
-
-
-# 
-def validate_user(email, password)
