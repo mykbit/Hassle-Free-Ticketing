@@ -13,17 +13,17 @@ def create_events():
             );
     """
     create_client_table_query = """
-            CREATE TABLE IF NOT EXISTS Clients (
-                id INT NOT NULL AUTO_INCREMENT,
-                email VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                name VARCHAR(255) NOT NULL,
-                revTag VARCHAR(255),
-                eventID INT NOT NULL,
-                jwtToken VARCHAR(255) NOT NULL
-                PRIMARY KEY (id)
-            );
+        CREATE TABLE IF NOT EXISTS Clients (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            revTag VARCHAR(255),
+            eventID INT NOT NULL,
+            jwtToken VARCHAR(255) NOT NULL
+        );
     """
+
     create_ticket_table_query = """
             CREATE TABLE IF NOT EXISTS Tickets (
                 id INT NOT NULL,
