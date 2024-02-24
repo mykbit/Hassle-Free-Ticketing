@@ -33,20 +33,14 @@ def query_db(connection, query, args=()):
         return cursor.fetchall()
 
 
-#   Insert Event into Database
-#   Parameters:
-#           eventID: ID for event. 
-#           organiserID: ID of the person who created the event. (If our system allows for multiple users)
-#           eventName: Name of event.
-#           eventDate: Date range when event should be active
-#           availableTickets: Number of tickets for event (default - 0)
-def insertUser(json_input):
+# Client
+def insertClient(json_input):
     data = json.loads(json_input)
     name = data['name']
     email = data['email']
+    password = data['password']
     revolutTag = data['revolutTag']
-    payment_status = data['payment_status']
-    events = data['events']
+    eventID = data['eventID']
     
     # Access DB
     database = connect_db()
@@ -54,8 +48,8 @@ def insertUser(json_input):
 
     # Insert a new user into the "users" table
     databaseCursor.execute(
-        "INSERT INTO users (name, email, revolutTag, payment_status, event) VALUES (%s, %s, %s, %s, %s)",
-        (name, email, revolutTag, payment_status, events)
+        "INSERT INTO Clients (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %s)",
+        (email, password, name, revolutTag, eventID)
     )
 
     # Save changes
@@ -63,7 +57,59 @@ def insertUser(json_input):
     database.close()
     return json.dumps({"success": True})
 
+def updateClientEmail(jsonInput):
+    data = json.loads(jsonInput)
 
+    userID = data['userID']
+    updatedEmail = data['updatedEmail']
+
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    databaseCursor.execute(
+        "UPDATE Clients SET email = %s WHERE id = %s",
+        (updatedEmail, userID)
+    )
+
+    database.commit()
+    database.close()
+    return json.dumps({"success": True, "userID": userID, "updatedName": updatedEmail})
+
+def updateClient(jsonInput):
+    data = json.loads(jsonInput)
+
+    id = data['userID']
+    name = data['name']
+    email = data['email']
+    password = data['password']
+    revolutTag = data['revolutTag']
+    eventID = data['eventID']
+    
+    database = connect_db()
+    databaseCursor = database.cursor()
+    databaseCursor.execute(
+        "UPDATE Clients SET email = %s, password = %s, name = %s, revTag = %s, eventID = %s WHERE id = %s",
+        (email, password, name, revolutTag, eventID, id)
+    )
+    database.commit()
+    database.close()
+    return json.dumps({"success": True, "userID": id, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag}})
+
+def getClientDetails(userID):
+    # Access DB
+    database = connect_db()
+    databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
+
+    # Query the database for user details
+    databaseCursor.execute(
+        "SELECT * FROM Clients WHERE id = %s",
+        (userID,)
+    )
+
+    user = databaseCursor.fetchone()
+    # Close the database connection
+    database.close()
+    return user
 
 def getEventDetails(eventID):
     # Access DB
@@ -72,7 +118,7 @@ def getEventDetails(eventID):
 
     # Query the database for event details
     databaseCursor.execute(
-        "SELECT * FROM events WHERE eventID = %s",
+        "SELECT * FROM Events WHERE id = %s",
         (eventID,)
     )
 
@@ -82,102 +128,36 @@ def getEventDetails(eventID):
     database.close()
     return event
 
-
-#   Insert User into Database
-#   Parameters:
-#           name: Name of user. 
-#           email: Email of User. 
-#           revolutTag: revolut tag
-#           payment_status: status of payment
-#           events: event registered to. 
-
-def insertUser(jsonInput):
+#  Tickets
+def insertTicket(jsonInput):
     data = json.loads(jsonInput)
+
     name = data['name']
-    email = data['email']
-    revolutTag = data['revolutTag']
-    payment_status = data['payment_status']
-    events = data['events']
-    database = connect_db()
-    databaseCursor = database.cursor()
-    databaseCursor.execute(
-        "INSERT INTO users (name, email, revolutTag, payment_status, event) VALUES (%s, %s, %s, %s, %s)",
-        (name, email, revolutTag, payment_status, events)
-    )
-
-    # Save changes
-    database.commit()
-    database.close()
-    return json.dumps({"success": True})
-
-
-def get_user_details(userID):
-    # Access DB
-    database = connect_db()
-    databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
-
-    # Query the database for user details
-    databaseCursor.execute(
-        "SELECT * FROM users WHERE userID = %s",
-        (userID,)
-    )
-
-    user = databaseCursor.fetchone()
-    # Close the database connection
-    database.close()
-    return user
-
-
-def updateUserName(jsonInput):
-    data = json.loads(jsonInput)
-    userID = data['userID']
-    updatedName = data['updatedName']
-    database = connect_db()
-    databaseCursor = database.cursor()
-    databaseCursor.execute(
-        "UPDATE users SET name = %s WHERE userID = %s",
-        (updatedName, userID)
-    )
-
-    database.commit()
-    database.close()
-    return json.dumps({"success": True, "userID": userID, "updatedName": updatedName})
-
-    
-#   Insert Registration
-#   Parameters:
-#           registrationID: registrationID
-#           userID: userID
-#           eventID : eventID
-#           registrationDate: date registered to event. 
-#           paymentStatus: status of payment 
-
-def insertRegistration(jsonInput):
-    data = json.loads(jsonInput)
-    registrationID = data['registrationID']
-    userID = data['userID']
+    revTag = data['revTag']
     eventID = data['eventID']
-    registrationDate = data['registrationDate']
-    paymentStatus = data['paymentStatus']
+    amountDue = data['amountDue']
+    amountPaid = data['amountPaid']
+    receiptID = data['receiptID']
+
     database = connect_db()
     databaseCursor = database.cursor()
+
     databaseCursor.execute(
-        "INSERT INTO registrations (registrationID, userID, eventID, registrationDate, paymentStatus) VALUES (%s, %s, %s, %s, %s)",
-        (registrationID, userID, eventID, registrationDate, paymentStatus)
+        "INSERT INTO Ticket (name, revTag, eventID, amountDue, amountPaid, receiptID) VALUES (%s, %s, %s, %s, %s, %s)",
+        (name, revTag, eventID, amountDue, amountPaid, receiptID)
     )
     database.commit()
     database.close()
     return json.dumps({"success": True})
 
-
-def getRegistrationDetails(regID):
+def getTicketDetails(regID):
     # Access DB
     database = connect_db()
     databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
 
     # Query the database for registration details
     databaseCursor.execute(
-        "SELECT * FROM registrations WHERE registrationID = %s",
+        "SELECT * FROM Tickets WHERE id = %s",
         (regID,)
     ) 
 
@@ -186,37 +166,59 @@ def getRegistrationDetails(regID):
     database.close()
     return registration
 
-
-def updateUser(jsonInput):
-    data = json.loads(jsonInput)
-    userID = data['userID']
-    name = data['name']
-    email = data['email']
-    revolutTag = data['revolutTag']
-    payment_status = data['payment_status']
-    
+def getEventIdJson(conn, eventID):
     database = connect_db()
     databaseCursor = database.cursor()
+    databaseCursor.execute("SELECT eventID FROM Events WHERE id = %s", (eventID,))
+    event = databaseCursor.fetchone()
+    database.close()
+    #return as json
+    return json.dumps(event)  
+
+# Events
+def insertEvent(eventName, max, price="", date=""):
+    # Access DB
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    # Insert a new event into the "events" table
     databaseCursor.execute(
-        "UPDATE users SET name = %s, email = %s, revolutTag = %s, payment_status = %s WHERE userID = %s",
-        (name, email, revolutTag, payment_status, userID)
+        "INSERT INTO Event (name, max, price, date) VALUES (%d, %s, %s, %s, %s, %s)",
+        (eventName, max, price, date)
     )
+
+    # Save changes
     database.commit()
     database.close()
-    return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag, "payment_status": payment_status}})
+    return
 
+def getEventDetails(eventID):
+    # Access DB
+    database = connect_db()
+    databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
 
+    # Query the database for registration details
+    databaseCursor.execute(
+        "SELECT * FROM Events WHERE id = %s",
+        (eventID,)
+    ) 
+
+    registration = databaseCursor.fetchone()
+    # Close the database connection
+    database.close()
+    return registration
 
 def getEventIdJson(conn, eventID):
     database = connect_db()
     databaseCursor = database.cursor()
-    databaseCursor.execute("SELECT eventID FROM events WHERE eventID = %s", (eventID,))
+    databaseCursor.execute("SELECT eventID FROM Events WHERE id = %s", (eventID,))
     event = databaseCursor.fetchone()
     database.close()
     #return as json
     return json.dumps(event)  
 
 
+# Queries:
 # Check whether user has paid by going through registrants in an event and check to see if the 
 # registant is in bankStatement (Array for now)
 # If entry exists we set the status of the transaction as paid.
@@ -252,13 +254,6 @@ def hasPaid(db, event, user, bankStatement):
         # If the user is not found in the event table, you might want to handle this case accordingly
         print(f"User {user} not found in the {event} table.")
 
-# # Test
-# event_table_name = "your_event_table_name"
-# user_to_check = "user_to_check"
-# bank_statement = ["user1", "user2", "user3"]  # Replace with your actual bank statement array
-# hasPaid(db, event_table_name, user_to_check, bank_statement)
-
-
 # credentials: json
 # "email": String
 # "password": String
@@ -289,22 +284,6 @@ def validate_user(credentials):
         print("Email not found.")
         return False
 
-def saveEvent(organisationID, eventName, link, description="", capacity="", date=""):
-    # Access DB
-    database = connect_db()
-    databaseCursor = database.cursor()
-
-    # Insert a new event into the "events" table
-    databaseCursor.execute(
-        "INSERT INTO event (organisationID, eventName, link, description, capacity, date) VALUES (%d, %s, %s, %s, %s, %s)",
-        (organisationID, eventName, link, description, capacity, date)
-    )
-
-    # Save changes
-    database.commit()
-    database.close()
-    return
-
 
 def query_db(connection, query, args=()):
     # Create a cursor object to execute SQL queries
@@ -313,20 +292,3 @@ def query_db(connection, query, args=()):
         cursor.execute(query, args)
         # Return the results from the query
         return cursor.fetchall()
-
-def insertUser(json_input):
-    data = json.loads(json_input)
-    email = data['email']
-    password = data['password']
-    name = data['name']
-    revTag = data.get('revTag', "")  
-    eventID = data.get('eventID', "")
-    database = connect_db()
-    databaseCursor = database.cursor()
-    databaseCursor.execute(
-        "INSERT INTO users (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %s)",
-        (email, password, name, revTag, eventID)
-    )
-    database.commit()
-    database.close()
-    return json.dumps({"success": True})
