@@ -306,18 +306,19 @@ def query_db(connection, query, args=()):
         # Return the results from the query
         return cursor.fetchall()
 
-def insertUser(email, password, name, revTag="", eventID=""):
-    # Access DB
-    database = connect_db()
+def insertUser(json_input):
+    data = json.loads(json_input)
+    email = data['email']
+    password = data['password']
+    name = data['name']
+    revTag = data.get('revTag', "")  
+    eventID = data.get('eventID', "")
+    database = init_db()
     databaseCursor = database.cursor()
-
-    # Insert a new event into the "events" table
     databaseCursor.execute(
-        "INSERT INTO users (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %d)",
+        "INSERT INTO users (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %s)",
         (email, password, name, revTag, eventID)
     )
-
-    # Save changes
     database.commit()
     database.close()
-    return
+    return json.dumps({"success": True})
