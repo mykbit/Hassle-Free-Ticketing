@@ -25,7 +25,7 @@ def create_events():
             )
     """
     create_ticket_table_query = """
-            CREATE TABLE IF NOT EXISTS Clients (
+            CREATE TABLE IF NOT EXISTS Tickets (
                 id INT NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 revTag VARCHAR(255),
