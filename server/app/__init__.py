@@ -16,7 +16,7 @@ def create_app():
         db_connection = connect_db()
 
     # Add the database connection to the Flask app context
-    app.db_connection = db_connection
+    app.db = db_connection
 
     # Import routes after initializing app to avoid circular imports
     from .routes import routes
