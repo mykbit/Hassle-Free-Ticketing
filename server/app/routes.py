@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
-from app.models import insertClient
+from app.models import insertClient, insertEvent, getEventDetails
 from app import utils
 import jwt
 import time
@@ -103,14 +103,24 @@ def get_event(event_id):
             "error": "Bad request"
         }, 400
     
-    # Make a query to the database to get the event details
+    # insertClient("name", "test", "pass")
+    # insertEvent("EventName", event_id, "2024-02-24", "test")
 
-    return {
-        "message": "Event retrieved successfully",
-        "data": None,
-        "error": None
-    }, 200
-
+    eventDetails = getEventDetails(event_id)
+    
+    if eventDetails:
+        return {
+            "message": "Event retrieved successfully",
+            "data": eventDetails,
+            "error": None
+        }, 200
+    else:
+        return {
+            "message": "Event not found",
+            "data": None,
+            "error": None
+        }, 404
+    
 @routes.route('/event/<int:event_id>/register', methods=['POST'])
 def register_for_event(event_id):
     event_id = request.view_args['event_id']
@@ -129,7 +139,6 @@ def register_for_event(event_id):
             "error": "Bad request"
         }, 400
     
-
     email = client.get('email')
     if not email:
         return {

@@ -34,7 +34,7 @@ def create_events():
                 FOREIGN KEY (client_email)  REFERENCES Clients(email)
             );
     """
-
-    query_db(connect_db(), create_event_table_query, ())
+    
     query_db(connect_db(), create_client_table_query, ())
+    query_db(connect_db(), create_event_table_query, ())
     query_db(connect_db(), create_ticket_table_query, ())

@@ -111,15 +111,15 @@ def getTicketDetails(regID):
     return registration
 
 # Events
-def insertEvent(eventName, max, price="", date=""):
+def insertEvent(name, price, date, holder_email):
     # Access DB
     database = connect_db()
     databaseCursor = database.cursor()
 
     # Insert a new event into the "events" table
     databaseCursor.execute(
-        "INSERT INTO Event (name, max, price, date) VALUES (%d, %s, %s, %s, %s, %s)",
-        (eventName, max, price, date)
+        "INSERT INTO Events (name, price, date, holder_email) VALUES (%s, %s, %s, %s)",
+        (name, price, date, holder_email)
     )
 
     # Save changes
@@ -135,7 +135,7 @@ def getEventDetails(eventID):
     # Query the database for registration details
     databaseCursor.execute(
         "SELECT * FROM Events WHERE id = %s",
-        (eventID,)
+        (eventID)
     ) 
 
     registration = databaseCursor.fetchone()
