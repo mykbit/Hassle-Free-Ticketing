@@ -5,7 +5,7 @@ import json
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
 # from dotenv import load_dotenv
 
-def init_db():
+def connect_db():
     # Retrieve database credentials from the environment
     db_host = os.environ.get('DATABASE_HOST')
     db_port = int(os.environ.get('DATABASE_PORT'))
