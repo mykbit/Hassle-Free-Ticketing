@@ -41,7 +41,7 @@ def insertUser(json_input):
     events = data['events']
     
     # Access DB
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
 
     # Insert a new user into the "users" table
@@ -59,7 +59,7 @@ def insertUser(json_input):
 
 def getEventDetails(eventID):
     # Access DB
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
 
     # Query the database for event details
@@ -90,7 +90,7 @@ def insertUser(jsonInput):
     revolutTag = data['revolutTag']
     payment_status = data['payment_status']
     events = data['events']
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
         "INSERT INTO users (name, email, revolutTag, payment_status, event) VALUES (%s, %s, %s, %s, %s)",
@@ -105,7 +105,7 @@ def insertUser(jsonInput):
 
 def get_user_details(userID):
     # Access DB
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
 
     # Query the database for user details
@@ -124,7 +124,7 @@ def updateUserName(jsonInput):
     data = json.loads(jsonInput)
     userID = data['userID']
     updatedName = data['updatedName']
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
         "UPDATE users SET name = %s WHERE userID = %s",
@@ -151,7 +151,7 @@ def insertRegistration(jsonInput):
     eventID = data['eventID']
     registrationDate = data['registrationDate']
     paymentStatus = data['paymentStatus']
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
         "INSERT INTO registrations (registrationID, userID, eventID, registrationDate, paymentStatus) VALUES (%s, %s, %s, %s, %s)",
@@ -164,7 +164,7 @@ def insertRegistration(jsonInput):
 
 def getRegistrationDetails(regID):
     # Access DB
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
 
     # Query the database for registration details
@@ -187,7 +187,7 @@ def updateUser(jsonInput):
     revolutTag = data['revolutTag']
     payment_status = data['payment_status']
     
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
         "UPDATE users SET name = %s, email = %s, revolutTag = %s, payment_status = %s WHERE userID = %s",
@@ -200,7 +200,7 @@ def updateUser(jsonInput):
 
 
 def getEventIdJson(conn, eventID):
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute("SELECT eventID FROM events WHERE eventID = %s", (eventID,))
     event = databaseCursor.fetchone()
@@ -256,7 +256,7 @@ def hasPaid(db, event, user, bankStatement):
 # "password": String
 def validate_user(credentials):
     inputDict = json.loads(credentials)
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
 
     query = f"""
@@ -283,7 +283,7 @@ def validate_user(credentials):
 
 def saveEvent(organisationID, eventName, link, description="", capacity="", date=""):
     # Access DB
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
 
     # Insert a new event into the "events" table
@@ -313,7 +313,7 @@ def insertUser(json_input):
     name = data['name']
     revTag = data.get('revTag', "")  
     eventID = data.get('eventID', "")
-    database = init_db()
+    database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
         "INSERT INTO users (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %s)",
