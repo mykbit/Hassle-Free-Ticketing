@@ -24,15 +24,6 @@ def connect_db():
 
     return connection
 
-def query_db(connection, query, args=()):
-    # Create a cursor object to execute SQL queries
-    with connection.cursor() as cursor:
-        # Execute the SQL query
-        cursor.execute(query, args)
-        # Return the results from the query
-        return cursor.fetchall()
-
-
 # Client
 def insertClient(name, email, password, revolutTag="", eventID):
     
