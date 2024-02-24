@@ -7,7 +7,7 @@ import os
 # Load environment variables from the .env file
 # load_dotenv()
 
-def init_db():
+def connect_db():
     # Retrieve database credentials from the environment
     db_host = os.environ.get('DATABASE_HOST')
     db_port = int(os.environ.get('DATABASE_PORT'))
@@ -16,7 +16,7 @@ def init_db():
     db_name = os.environ.get('DATABASE_NAME')
 
     # Establish a connection to the MySQL database
-    conn = pymysql.connect(
+    connection = pymysql.connect(
         host=db_host,
         port=db_port,
         user=db_user,
@@ -24,6 +24,12 @@ def init_db():
         database=db_name,
     )
 
-    cursor = conn.cursor()
+    return connection
 
-    return cursor
+def query_db(connection, query, args=()):
+    # Create a cursor object to execute SQL queries
+    with connection.cursor() as cursor:
+        # Execute the SQL query
+        cursor.execute(query, args)
+        # Return the results from the query
+        return cursor.fetchall()
