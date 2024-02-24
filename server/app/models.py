@@ -132,21 +132,24 @@ def updateUserName(jsonInput):
 #           eventID : eventID
 #           registrationDate: date registered to event. 
 #           paymentStatus: status of payment 
-def insertRegistration(registrationID, user, eventID, registrationDate, paymentStatus):
-    # Access DB
+
+def insertRegistration(jsonInput):
+    data = json.loads(jsonInput)
+    registrationID = data['registrationID']
+    userID = data['userID']
+    eventID = data['eventID']
+    registrationDate = data['registrationDate']
+    paymentStatus = data['paymentStatus']
     database = init_db()
     databaseCursor = database.cursor()
-
-    # Insert a new event into the "events" table
     databaseCursor.execute(
-        "INSERT INTO registrations (registrationID, userID, eventID, registrationDate, paymentStatus) VALUES (%d, %s, %d, %s, %s, %s)",
-        (registrationID, user, eventID, registrationDate, paymentStatus)
+        "INSERT INTO registrations (registrationID, userID, eventID, registrationDate, paymentStatus) VALUES (%s, %s, %s, %s, %s)",
+        (registrationID, userID, eventID, registrationDate, paymentStatus)
     )
-
-    # Save changes
     database.commit()
     database.close()
-    return
+    return json.dumps({"success": True})
+
 
 def getRegistrationDetails(regID):
     # Access DB
