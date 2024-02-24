@@ -18,7 +18,7 @@ def token_required(func):
         try:
             data = jwt.decode(token, current_app.config['JWT_SECRET_KEY'])
             current_user = query_db(connect_db(), "SELECT * FROM Clients WHERE email=?",
-                                            data)
+                                            data['email'])
             if not current_user:
                 return {
                     "message": "User not found",

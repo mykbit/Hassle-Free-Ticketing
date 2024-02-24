@@ -1,6 +1,9 @@
+from flask import current_app
+import jwt
 import pymysql
 import os
 import json
+import time
 
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
 # from dotenv import load_dotenv
@@ -23,6 +26,26 @@ def connect_db():
 
     return connection
 
+def get_contents_clients():
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    databaseCursor.execute("SELECT * FROM Clients")
+
+    rows = databaseCursor.fetchall()
+    database.close()
+    return rows
+
+def get_contents_sessions():
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    databaseCursor.execute("SELECT * FROM Sessions")
+
+    rows = databaseCursor.fetchall()
+    database.close()
+    return rows
+
 # Client
 def insertClient(name, email, password):
     
@@ -40,6 +63,7 @@ def insertClient(name, email, password):
     database.commit()
     database.close()
     return True
+
 
 def updateClientEmail(userID, updatedEmail):
 
@@ -189,32 +213,37 @@ def hasPaid(db, event, user, bankStatement):
 # credentials: json
 # "email": String
 # "password": String
-def validate_user(credentials):
-    inputDict = json.loads(credentials)
+def validate_user(email, password):
     database = connect_db()
     databaseCursor = database.cursor()
 
     query = f"""
-            SELECT * FROM organisation WHERE email = '{inputDict['password']}'
+            SELECT * FROM Clients WHERE email = '{email}' AND password = '{password}'
     """
     databaseCursor.execute(query)
     result = databaseCursor.fetchone()
 
-    if result:
-        # If the email is found in the organisation table
-        password_column_index = databaseCursor.column_names.index('password')
-        stored_password = result[password_column_index]
-        
-        if inputDict['password'] == stored_password:
-            print("Credentials are valid.")
-            return True
-        else:
-            print("Password does not match.")
-            return False
+    if result:        
+        return True
     else:
-        # If the email is not found in the organisation table
-        print("Email not found.")
         return False
+    
+def session_add(email):
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    expiry_date = int(time.time() + (24 * 60 * 60 * 7))
+
+    token = jwt.encode({'email': email, 'expiryDate' : expiry_date}, str(current_app.config['JWT_SECRET_KEY']), algorithm="HS256")
+
+    query = f"""
+            INSERT INTO Sessions (token, client_email, expiry_date) VALUES ('{token}', '{email}', FROM_UNIXTIME('{expiry_date}'))
+    """
+    databaseCursor.execute(query)
+    database.commit()
+    database.close()
+
+    return token, expiry_date
 
 def query_db(connection, query, args=()):
     # Create a cursor object to execute SQL queries
