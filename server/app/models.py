@@ -34,13 +34,7 @@ def query_db(connection, query, args=()):
 
 
 # Client
-def insertClient(json_input):
-    data = json.loads(json_input)
-    name = data['name']
-    email = data['email']
-    password = data['password']
-    revolutTag = data['revolutTag']
-    eventID = data['eventID']
+def insertClient(name, email, password, revolutTag="", eventID):
     
     # Access DB
     database = connect_db()
@@ -57,11 +51,7 @@ def insertClient(json_input):
     database.close()
     return json.dumps({"success": True})
 
-def updateClientEmail(jsonInput):
-    data = json.loads(jsonInput)
-
-    userID = data['userID']
-    updatedEmail = data['updatedEmail']
+def updateClientEmail(userID, updatedEmail):
 
     database = connect_db()
     databaseCursor = database.cursor()
