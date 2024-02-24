@@ -212,9 +212,9 @@ def bank_statement():
         }, 400
 
     statements = utils.parse_csv(itarable)
-
-    # statement has these fields: "Type","Product","Started Date","Completed Date","Description","Amount","Fee","Currency","State","Balance"
-    print(statements, file=sys.stderr)
+    statements = utils.filter_payments(statements)
+    # FIXME: pass event id
+    validate_payment(statements, 'event_id')
 
     return {
         "message": "File uploaded successfully",
