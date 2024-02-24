@@ -41,6 +41,7 @@ def insertClient(name, email, password):
     database.close()
     return True
 
+
 def updateClientEmail(userID, updatedEmail):
 
     database = connect_db()
