@@ -106,14 +106,14 @@ def getClientDetails(userID):
     database.close()
     return user
 #  Tickets
-def insertTicket(name, revTag, eventID, amountDue, amountPaid, receiptID):
-    database = connect_db()
-    databaseCursor = database.cursor()
 
-    databaseCursor.execute(
-        "INSERT INTO Ticket (name, revTag, eventID, amountDue, amountPaid, receiptID) VALUES (%s, %s, %s, %s, %s, %s)",
-        (name, revTag, eventID, amountDue, amountPaid, receiptID)
-    )
+def insertTicket(eventID, email, valid=True):
+    database = connect_db()
+    with database.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO Tickets (eventID, email, valid) VALUES (%s, %s, %s)",
+            (eventID, email, valid)
+        )
     database.commit()
     database.close()
     return json.dumps({"success": True})
@@ -139,17 +139,16 @@ def insertEvent(name, price, date, holder_email):
     # Access DB
     database = connect_db()
     databaseCursor = database.cursor()
-
-    # Insert a new event into the "events" table
+        # Insert a new event into the "Events" table
     databaseCursor.execute(
-        "INSERT INTO Events (name, price, date, holder_email) VALUES (%s, %s, %s, %s)",
-        (name, price, date, holder_email)
-    )
-
+            "INSERT INTO Events (name, price, date, holder_email) VALUES (%s, %s, %s, %s)",
+            (name, price, date, holder_email)
+        )
     # Save changes
     database.commit()
     database.close()
     return
+
 
 def getEventDetails(eventID):
     # Access DB
@@ -159,7 +158,7 @@ def getEventDetails(eventID):
     # Query the database for registration details
     databaseCursor.execute(
         "SELECT * FROM Events WHERE id = %s",
-        (eventID)
+        (eventID,)
     ) 
 
     registration = databaseCursor.fetchone()
@@ -167,48 +166,45 @@ def getEventDetails(eventID):
     database.close()
     return registration
 
-def getEventIdJson(conn, eventID):
+def getEventIdJson(eventID):
     database = connect_db()
-    databaseCursor = database.cursor()
-    databaseCursor.execute("SELECT eventID FROM Events WHERE id = %s", (eventID,))
+    databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
+    databaseCursor.execute("SELECT * FROM Events WHERE id = %s", (eventID,))
     event = databaseCursor.fetchone()
     database.close()
-    #return as json
-    return json.dumps(event)  
+    # Return as json
+    return json.dumps(event)
 
 
 # Queries:
 # Check whether user has paid 
-def hasPaid(db, event, user, bankStatement):
-    databaseCursor = db.cursor()
+def hasPaid(db, eventName, user, bankStatement):
+    databaseCursor = db.cursor(pymysql.cursors.DictCursor)
 
-    # Assuming 'event' table has columns 'registrant' and 'status'
-    query = f"""
-            SELECT Tickets, status FROM {event} WHERE name = '{user}' AND eventID = '{event}
-    """
-    databaseCursor.execute(query)
+    # Use parameterized queries to avoid SQL injection
+    query = "SELECT status FROM Tickets WHERE client_email = %s AND event_id = (SELECT id FROM Events WHERE name = %s)"
+    databaseCursor.execute(query, (user, eventName))
     result = databaseCursor.fetchone()
 
     if result:
-        # If the user is found in the event table
-        registrant_status = result[1]
+        registrant_status = result['status']
         if user in bankStatement:
-            # If the user is in the bankStatement array, set status to 'paid'
             if registrant_status != 'paid':
-                databaseCursor.execute("UPDATE {event} SET status = 'paid' WHERE registrant = '{user}'")
+                update_query = "UPDATE Tickets SET status = 'paid' WHERE client_email = %s AND event_id = (SELECT id FROM Events WHERE name = %s)"
+                databaseCursor.execute(update_query, (user, eventName))
                 db.commit()
             else:
                 print(f"User {user} is already marked as paid.")
         else:
-            # If the user is not in the bankStatement array, set status to 'pending'
             if registrant_status != 'pending':
-                databaseCursor.execute("UPDATE {event} SET status = 'pending' WHERE registrant = '{user}'")
+                update_query = "UPDATE Tickets SET status = 'pending' WHERE client_email = %s AND event_id = (SELECT id FROM Events WHERE name = %s)"
+                databaseCursor.execute(update_query, (user, eventName))
                 db.commit()
             else:
                 print(f"User {user} is already marked as pending.")
     else:
-        # If the user is not found in the event table, you might want to handle this case accordingly
-        print(f"User {user} not found in the {event} table.")
+        print(f"User {user} not found for event {eventName}.")
+
 
 # credentials: json
 # "email": String
@@ -252,3 +248,4 @@ def query_db(connection, query, args=()):
         cursor.execute(query, args)
         # Return the results from the query
         return cursor.fetchall()
+
