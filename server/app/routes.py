@@ -150,7 +150,7 @@ def get_user(current_user):
 
 @routes.route('/bank-statement', methods=['POST'])
 def bank_statement():
-    if 'file' not in request.files:
+    if 'file' not in request.files or request.files['file'].filename == '':
         return {
             "message": "File expected",
             "data": None,
