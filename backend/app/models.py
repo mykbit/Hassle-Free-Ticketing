@@ -17,46 +17,49 @@ def init_db():
 
     # Establish a connection to the MySQL database
     conn = pymysql.connect(
-        host=db_host,
-        port=db_port,
-        user=db_user,
-        password=db_password,
-        database=db_name,
+        host='localhost',
+        port=3306,
+        user='your_test_user',
+        password='your_password',
+        database='your_test_database',
     )
 
-    cursor = conn.cursor()
-
-    return cursor
+    return conn
 
 
 #   Insert Event into Database
 def insert(event_name, event_date, payment_address):
     # Access DB
-    databaseCursor = init_db()
+    database = init_db()
+    databaseCursor = database.cursor()
 
     # Insert a new event into the "events" table
     databaseCursor.execute(
-        "INSERT INTO events (event_name, event_date, payment_link) VALUES (%s, %S, %s)", 
+        "INSERT INTO events (event_name, event_date, payment_link) VALUES (%s, %s, %s)", 
         (event_name, event_date, payment_address)
     )
 
-    # Insert into Database then close. 
-    databaseCursor.commit()
-    databaseCursor.close()
+    # Save changes
+    database.commit()
+    database.close()
     return
 
 
 #   Insert User into Databse
-def insert(name, email, revolut_tag, payment_status, event):
-    databaseCursor = init_db()
+def inserts(name, email, revolut_tag, payment_status, event):
+    # Access DB
+    database = init_db()
+    databaseCursor = database.cursor()
 
+    # Insert a new event into the "events" table
     databaseCursor.execute(
         "INSERT INTO users (name, email, revolut_tag, payment_status, event) VALUES (%s, %s, %s, %s, %s, %s)",
         (name, email, revolut_tag, payment_status, event)
     )
 
-    databaseCursor.commit()
-    databaseCursor.close()
+    # Save changes
+    database.commit()
+    database.close()
     return
 
     
