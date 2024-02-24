@@ -1,8 +1,8 @@
 from functools import wraps
 import jwt
-from flask import request, abort
+from flask import request
 from flask import current_app
-from .models import query_db
+from .models import query_db, connect_db
 
 def token_required(func):
     @wraps(func)
@@ -18,8 +18,8 @@ def token_required(func):
             }, 401
         try:
             data = jwt.decode(token, current_app.config['JWT_SECRET_KEY'])
-            current_user = query_db(current_app.db_connection, "SELECT * FROM Clients WHERE email=?",
-                                            (data['email']))
+            current_user = query_db(connect_db(), "SELECT * FROM Clients WHERE email=?",
+                                            data)
             if not current_user:
                 return {
                     "message": "User not found",

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
+from app.models import query_db, connect_db, insert_db
 
 routes = Blueprint('routes', __name__)
 
@@ -28,7 +29,7 @@ def register():
     # TODO: Validate the user details
     
     # Add the user to the database
-    current_app.db.insertUser(user['email'], user['password'], user['name'])
+    # query_db(connect_db(), insert_db(), (user['email'], user['password'], user['name'])
     return {
         "message": "User registered successfully",
         "data": user,
