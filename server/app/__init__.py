@@ -1,6 +1,6 @@
 from flask import Flask
 
-from .models import init_db
+from .models import connect_db
 from .config import Config
 
 # Function to create and configure the Flask app
@@ -13,7 +13,7 @@ def create_app():
 
     # Initialize database connection
     with app.app_context():
-        db_connection = init_db()
+        db_connection = connect_db()
 
     # Add the database connection to the Flask app context
     app.db_connection = db_connection
