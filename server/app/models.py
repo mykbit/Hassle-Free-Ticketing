@@ -25,7 +25,7 @@ def connect_db():
     return connection
 
 # Client
-def insertClient(name, email, password, revolutTag="", eventID):
+def insertClient(name, email, password, eventID, revolutTag=""):
     
     # Access DB
     database = connect_db()
@@ -56,25 +56,17 @@ def updateClientEmail(userID, updatedEmail):
     database.close()
     return json.dumps({"success": True, "userID": userID, "updatedName": updatedEmail})
 
-def updateClient(jsonInput):
-    data = json.loads(jsonInput)
-
-    id = data['userID']
-    name = data['name']
-    email = data['email']
-    password = data['password']
-    revolutTag = data['revolutTag']
-    eventID = data['eventID']
-    
+def updateClient(userID, name, email, password, revolutTag, eventID):
     database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
         "UPDATE Clients SET email = %s, password = %s, name = %s, revTag = %s, eventID = %s WHERE id = %s",
-        (email, password, name, revolutTag, eventID, id)
+        (email, password, name, revolutTag, eventID, userID)
     )
     database.commit()
     database.close()
-    return json.dumps({"success": True, "userID": id, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag}})
+    return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag}})
+
 
 def getClientDetails(userID):
     # Access DB
@@ -110,16 +102,7 @@ def getEventDetails(eventID):
     return event
 
 #  Tickets
-def insertTicket(jsonInput):
-    data = json.loads(jsonInput)
-
-    name = data['name']
-    revTag = data['revTag']
-    eventID = data['eventID']
-    amountDue = data['amountDue']
-    amountPaid = data['amountPaid']
-    receiptID = data['receiptID']
-
+def insertTicket(name, revTag, eventID, amountDue, amountPaid, receiptID):
     database = connect_db()
     databaseCursor = database.cursor()
 
@@ -130,6 +113,7 @@ def insertTicket(jsonInput):
     database.commit()
     database.close()
     return json.dumps({"success": True})
+
 
 def getTicketDetails(regID):
     # Access DB
