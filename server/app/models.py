@@ -2,10 +2,10 @@ import pymysql
 import os
 
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # Load environment variables from the .env file
-load_dotenv()
+# load_dotenv()
 
 def init_db():
     # Retrieve database credentials from the environment
