@@ -114,8 +114,8 @@ def get_user_details(userID):
 
 import json
 
-def updateUserName(json_input):
-    data = json.loads(json_input)
+def updateUserName(jsonInput):
+    data = json.loads(jsonInput)
     userID = data['userID']
     updatedName = data['updatedName']
     database = init_db()
