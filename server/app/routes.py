@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.auth import token_required
-from app.models import query_db, connect_db, insertUser
+from app.models import query_db, connect_db, insertClient
 from app import utils
 import sys
 
@@ -31,7 +31,7 @@ def register():
     # TODO: Validate the user details
     
     # Add the user to the database
-    query_db(connect_db(), insertUser(), user['email'], user['password'], user['name'])
+    query_db(connect_db(), insertClient(), user['email'], user['password'], user['name'])
     return {
         "message": "User registered successfully",
         "data": user,
