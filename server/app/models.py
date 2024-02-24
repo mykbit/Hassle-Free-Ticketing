@@ -76,21 +76,26 @@ def getEventDetails(eventID):
 #           revolutTag: revolut tag
 #           payment_status: status of payment
 #           events: event registered to. 
-def insertUser(name, email, revolutTag, payment_status, events):
-    # Access DB
+
+def insertUser(jsonInput):
+    data = json.loads(jsonInput)
+    name = data['name']
+    email = data['email']
+    revolutTag = data['revolutTag']
+    payment_status = data['payment_status']
+    events = data['events']
     database = init_db()
     databaseCursor = database.cursor()
-
-    # Insert a new event into the "events" table
     databaseCursor.execute(
-        "INSERT INTO users (name, email, revolutTag, payment_status, event) VALUES (%s, %s, %s, %s, %s, %s)",
+        "INSERT INTO users (name, email, revolutTag, payment_status, event) VALUES (%s, %s, %s, %s, %s)",
         (name, email, revolutTag, payment_status, events)
     )
 
     # Save changes
     database.commit()
     database.close()
-    return
+    return json.dumps({"success": True})
+
 
 def get_user_details(userID):
     # Access DB
