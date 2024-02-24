@@ -50,6 +50,7 @@ def insertEvent(eventID, organiserID, eventLink, eventName, eventDate, available
     database.close()
     return
 
+
 def getEventDetails(eventID):
     # Access DB
     database = init_db()
@@ -111,21 +112,23 @@ def get_user_details(userID):
     database.close()
     return user
 
-def updateUserName(userID, updatedName):
-    # Access DB
+import json
+
+def updateUserName(json_input):
+    data = json.loads(json_input)
+    userID = data['userID']
+    updatedName = data['updatedName']
     database = init_db()
     databaseCursor = database.cursor()
-
-    # Update the name of the user in the "users" table
     databaseCursor.execute(
-        "UPDATE users SET name = %s WHERE userID = %d",
+        "UPDATE users SET name = %s WHERE userID = %s",
         (updatedName, userID)
     )
 
-    # Save changes
     database.commit()
     database.close()
-    return
+    return json.dumps({"success": True, "userID": userID, "updatedName": updatedName})
+
     
 #   Insert Registration
 #   Parameters:
@@ -280,3 +283,7 @@ def saveEvent(organisationID, eventName, link, description="", capacity="", date
     database.commit()
     database.close()
     return
+
+
+
+
