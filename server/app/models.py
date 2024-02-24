@@ -55,16 +55,16 @@ def updateClientEmail(userID, updatedEmail):
     database.close()
     return json.dumps({"success": True, "userID": userID, "updatedName": updatedEmail})
 
-def updateClient(userID, name, email, password, revolutTag, eventID):
+def updateClient(userID, name, email, password):
     database = connect_db()
     databaseCursor = database.cursor()
     databaseCursor.execute(
-        "UPDATE Clients SET email = %s, password = %s, name = %s, revTag = %s, eventID = %s WHERE id = %s",
-        (email, password, name, revolutTag, eventID, userID)
+        "UPDATE Clients SET email = %s, password = %s, name = %s WHERE id = %s",
+        (email, password, name, userID)
     )
     database.commit()
     database.close()
-    return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag}})
+    return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email}})
 
 def getClientDetails(userID):
     # Access DB
