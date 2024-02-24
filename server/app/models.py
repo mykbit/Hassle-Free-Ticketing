@@ -60,8 +60,8 @@ def delete_data(conn, table, condition):
     
 if __name__ == "__main__":
     conn = init_db()
-    create_table(conn)  # Create the table
-    # Example operations
+    create_table(conn) 
+    # example
     insert_data(conn, 'temp_table', {
         'firstName': 'AnandJR',
         'lastName': 'Anand',
