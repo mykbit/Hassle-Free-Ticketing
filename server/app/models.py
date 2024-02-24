@@ -24,7 +24,7 @@ def connect_db():
     return connection
 
 # Client
-def insertClient(name, email, password, eventID, revolutTag=""):
+def insertClient(name, email, password):
     
     # Access DB
     database = connect_db()
@@ -32,14 +32,14 @@ def insertClient(name, email, password, eventID, revolutTag=""):
 
     # Insert a new user into the "users" table
     databaseCursor.execute(
-        "INSERT INTO Clients (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %s)",
-        (email, password, name, revolutTag, eventID)
+        "INSERT INTO Clients (email, password, name) VALUES (%s, %s, %s)",
+        (email, password, name)
     )
 
     # Save changes
     database.commit()
     database.close()
-    return json.dumps({"success": True})
+    return True
 
 def updateClientEmail(userID, updatedEmail):
 

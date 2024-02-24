@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
-from app.models import query_db, connect_db, insertClient
+from app.models import insertClient
 from app import utils
+import jwt
+import time
 import sys
 
 routes = Blueprint('routes', __name__)
@@ -20,38 +22,49 @@ def home():
 # user fields: email, password, name, revTag="", eventID=""
 @routes.route('/register', methods=['POST'])
 def register():
-    user = request.get_json()
-    if not user:
+    client = request.get_json()
+    if not client:
         return {
-            "message": "Please provide user details",
+            "message": "Please provide client details",
             "data": None,
             "error": "Bad request"
         }, 400
     
-    # TODO: Validate the user details
-    
-    # Add the user to the database
-    query_db(connect_db(), insertClient(), user['email'], user['password'], user['name'])
-    return {
-        "message": "User registered successfully",
-        "data": user,
-        "error": None
-    }, 201
+    # TODO: Validate the client details
 
+    # Add the client to the database
+    if insertClient(client['email'], client['password'], client['name']):
+
+        payload  = {'email': client['email']}
+        token = jwt.encode(payload, str(current_app.config['JWT_SECRET_KEY']), algorithm="HS256")
+        return {
+            "message": "client registered successfully",
+            "data": {
+                "token": token,
+                "expiration": int(time.time() + (24 * 60 * 60))
+            },
+            "error": None
+        }, 201
+    else:
+        return {
+            "message": "An error occurred",
+            "data": None,
+            "error": "Internal server error"
+        }, 500
 
 @routes.route('/login', methods=['POST'])
 def login():
      try:
-        user = request.json
-        if not user:
+        client = request.json
+        if not client:
             return {
-                "message": "Please provide user details",
+                "message": "Please provide client details",
                 "data": None,
                 "error": "Bad request"
             }, 400
         
-        email = user.get('email')
-        password = user.get('password')
+        email = client.get('email')
+        password = client.get('password')
 
         if not email or not password:
             return {
@@ -60,15 +73,16 @@ def login():
                 "error": "Bad request"
             }, 400
         
-        # Make a query to the database to check if the user exists
+        # Make a query to the database to check if the client exists
+
 
         # Next, check if the password is correct
 
         #
 
         return {
-            "message": "User logged in successfully",
-            "data": user,
+            "message": "client logged in successfully",
+            "data": client,
             "error": None
         }, 200
      
@@ -100,7 +114,7 @@ def get_event(event_id):
 @routes.route('/event/<int:event_id>/register', methods=['POST'])
 def register_for_event(event_id):
     event_id = request.view_args['event_id']
-    user = request.json
+    client = request.json
     if not event_id:
         return {
             "message": "Please provide event id",
@@ -108,15 +122,15 @@ def register_for_event(event_id):
             "error": "Bad request"
         }, 400
     
-    if not user:
+    if not client:
         return {
-            "message": "Please provide user details",
+            "message": "Please provide client details",
             "data": None,
             "error": "Bad request"
         }, 400
     
 
-    email = user.get('email')
+    email = client.get('email')
     if not email:
         return {
             "message": "Please provide email",
@@ -124,11 +138,11 @@ def register_for_event(event_id):
             "error": "Bad request"
         }, 400
 
-    # Make a query to the database to check if the user already exists
+    # Make a query to the database to check if the client already exists
 
-    # Next, save the user to the database
+    # Next, save the client to the database
     return {
-        "message": "User registered for event successfully",
+        "message": "client registered for event successfully",
         "data": None,
         "error": None
     }, 201
