@@ -1,7 +1,7 @@
 from flask import Flask
 
 from .models import connect_db
-from .tables import create_events
+from .tables import create_tables
 from .config import Config
 
 # Function to create and configure the Flask app
@@ -14,7 +14,7 @@ def create_app():
 
     # Create tables in the database
     with app.app_context():
-        create_events()
+        create_tables()
 
     # Initialize database connection
     with app.app_context():

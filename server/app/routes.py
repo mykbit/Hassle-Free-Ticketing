@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
-from app.models import insertClient
+from app.models import insertClient, validate_user, session_add, get_contents_clients, get_contents_sessions
 from app import utils
 import jwt
 import time
 import sys
+import json
 
 routes = Blueprint('routes', __name__)
 
@@ -15,11 +16,24 @@ def home():
         "data": None,
         "error": None
     }), 200
-
-# @routes.route('/table', methods=['GET'])
-# def view_table_contents():
     
-# user fields: email, password, name, revTag="", eventID=""
+@routes.route('/table', methods=['GET'])
+def view_table():
+    return jsonify({
+        "message": "Table retrieved successfully",
+        "data": get_contents_clients(),
+        "error": None
+    }), 200
+
+@routes.route('/session', methods=['GET'])
+def view_session():
+    return jsonify({
+        "message": "Session retrieved successfully",
+        "data": get_contents_sessions(),
+        "error": None
+    }), 200
+
+# user fields: email, password, name
 @routes.route('/register', methods=['POST'])
 def register():
     client = request.get_json()
@@ -30,18 +44,16 @@ def register():
             "error": "Bad request"
         }, 400
     
-    # TODO: Validate the client details
-
     # Add the client to the database
-    if insertClient(client['email'], client['password'], client['name']):
+    if insertClient(client['name'], client['email'], client['password']):
 
         payload  = {'email': client['email']}
-        token = jwt.encode(payload, str(current_app.config['JWT_SECRET_KEY']), algorithm="HS256")
+        token, expiryDate = session_add(payload['email'])
         return {
             "message": "client registered successfully",
             "data": {
                 "token": token,
-                "expiration": int(time.time() + (24 * 60 * 60))
+                "expiryDate": expiryDate
             },
             "error": None
         }, 201
@@ -55,36 +67,35 @@ def register():
 @routes.route('/login', methods=['POST'])
 def login():
      try:
-        client = request.json
+        client = request.get_json()
         if not client:
             return {
                 "message": "Please provide client details",
                 "data": None,
                 "error": "Bad request"
             }, 400
-        
-        email = client.get('email')
-        password = client.get('password')
 
-        if not email or not password:
+        
+        # Make a query to the database to check if the client exist
+
+        if validate_user(client['email'], client['password']):
+
+            token, expiryDate = session_add(client['email'])
             return {
-                "message": "Please provide email and password",
-                "data": None,
-                "error": "Bad request"
-            }, 400
+                "message": "client logged in successfully",
+                "data": {
+                    "token": token,
+                    "expiration": expiryDate
+                },
+                "error": None
+            }, 200
         
-        # Make a query to the database to check if the client exists
-
-
-        # Next, check if the password is correct
-
-        #
-
-        return {
-            "message": "client logged in successfully",
-            "data": client,
-            "error": None
-        }, 200
+        else:
+            return {
+                "message": "Invalid email or password",
+                "data": None,
+                "error": "Unauthorized"
+            }, 401
      
      except Exception as e:
         return {
