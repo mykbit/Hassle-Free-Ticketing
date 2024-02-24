@@ -235,14 +235,16 @@ def hasPaid(db, event, user, bankStatement):
 # hasPaid(db, event_table_name, user_to_check, bank_statement)
 
 
-# Email: String
-# Password: String
-def validate_user(email, password):
+# credentials: json
+# "email": String
+# "password": String
+def validate_user(credentials):
+    inputDict = json.loads(credentials)
     database = init_db()
     databaseCursor = database.cursor()
 
     query = f"""
-            SELECT * FROM organisation WHERE email = '{email}'
+            SELECT * FROM organisation WHERE email = '{inputDict['password']}'
     """
     databaseCursor.execute(query)
     result = databaseCursor.fetchone()
@@ -252,7 +254,7 @@ def validate_user(email, password):
         password_column_index = databaseCursor.column_names.index('password')
         stored_password = result[password_column_index]
         
-        if password == stored_password:
+        if inputDict['password'] == stored_password:
             print("Credentials are valid.")
             return True
         else:
