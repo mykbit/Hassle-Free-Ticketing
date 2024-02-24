@@ -225,5 +225,46 @@ def hasPaid(db, event, user, bankStatement):
 # hasPaid(db, event_table_name, user_to_check, bank_statement)
 
 
-# 
-def validate_user(email, password)
+# Email: String
+# Password: String
+def validate_user(email, password):
+    database = init_db()
+    databaseCursor = database.cursor()
+
+    query = f"""
+            SELECT * FROM organisation WHERE email = '{email}'
+    """
+    databaseCursor.execute(query)
+    result = databaseCursor.fetchone()
+
+    if result:
+        # If the email is found in the organisation table
+        password_column_index = databaseCursor.column_names.index('password')
+        stored_password = result[password_column_index]
+        
+        if password == stored_password:
+            print("Credentials are valid.")
+            return True
+        else:
+            print("Password does not match.")
+            return False
+    else:
+        # If the email is not found in the organisation table
+        print("Email not found.")
+        return False
+
+def saveEvent(organisationID, eventName, link, description="", capacity="", date=""):
+    # Access DB
+    database = init_db()
+    databaseCursor = database.cursor()
+
+    # Insert a new event into the "events" table
+    databaseCursor.execute(
+        "INSERT INTO event (organisationID, eventName, link, description, capacity, date) VALUES (%d, %s, %s, %s, %s, %s)",
+        (organisationID, eventName, link, description, capacity, date)
+    )
+
+    # Save changes
+    database.commit()
+    database.close()
+    return
