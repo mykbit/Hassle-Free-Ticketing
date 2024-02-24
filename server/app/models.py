@@ -4,7 +4,6 @@ import json
 
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
 # from dotenv import load_dotenv
-
 def connect_db():
     # Retrieve database credentials from the environment
     db_host = os.environ.get('DATABASE_HOST')
@@ -155,16 +154,13 @@ def getEventIdJson(conn, eventID):
 
 
 # Queries:
-# Check whether user has paid by going through registrants in an event and check to see if the 
-# registant is in bankStatement (Array for now)
-# If entry exists we set the status of the transaction as paid.
-# Needs to be updated for child tables  
+# Check whether user has paid 
 def hasPaid(db, event, user, bankStatement):
     databaseCursor = db.cursor()
 
     # Assuming 'event' table has columns 'registrant' and 'status'
     query = f"""
-            SELECT registrant, status FROM {event} WHERE registrant = '{user}'
+            SELECT Tickets, status FROM {event} WHERE name = '{user}' AND eventID = '{event}
     """
     databaseCursor.execute(query)
     result = databaseCursor.fetchone()
@@ -219,7 +215,6 @@ def validate_user(credentials):
         # If the email is not found in the organisation table
         print("Email not found.")
         return False
-
 
 def query_db(connection, query, args=()):
     # Create a cursor object to execute SQL queries

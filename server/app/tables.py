@@ -20,6 +20,7 @@ def create_events():
                 name VARCHAR(255) NOT NULL,
                 revTag VARCHAR(255),
                 eventID INT NOT NULL,
+                jvtToken VARCHAR(255) NOT NULL
                 PRIMARY KEY (id)
             );
     """
@@ -35,6 +36,18 @@ def create_events():
                 PRIMARY KEY (id)
             );
     """
+
+    create_bankPayments_table_query = """
+            CREATE TABLE IF NOT EXISTS bankPayments (
+                id INT NOT NULL, 
+                timestamp TIMESTAMP NOT NULL, 
+                description VARCHAR(255) NOT NULL, 
+                amount INT,
+                PRIMARY KEY (id)
+            )
+
+    """
     query_db(connect_db(), create_event_table_query, ())
     query_db(connect_db(), create_client_table_query, ())
     query_db(connect_db(), create_ticket_table_query, ())
+    query_db(connect_db(), create_bankPayments_table_query, ())
