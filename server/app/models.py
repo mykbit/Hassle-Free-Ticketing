@@ -69,10 +69,6 @@ def getEventDetails(eventID):
     return event
 
 
-
-
-
-
 #   Insert User into Database
 #   Parameters:
 #           name: Name of user. 
@@ -112,7 +108,6 @@ def get_user_details(userID):
     database.close()
     return user
 
-import json
 
 def updateUserName(jsonInput):
     data = json.loads(jsonInput)
@@ -169,21 +164,25 @@ def getRegistrationDetails(regID):
     database.close()
     return registration
 
-def updateUser(userID, name, email, revolutTag, payment_status):
-    # Access DB
+
+def updateUser(jsonInput):
+    data = json.loads(jsonInput)
+    userID = data['userID']
+    name = data['name']
+    email = data['email']
+    revolutTag = data['revolutTag']
+    payment_status = data['payment_status']
+    
     database = init_db()
     databaseCursor = database.cursor()
-
-    # Update user information in the "users" table
     databaseCursor.execute(
-        "UPDATE users SET name = %s, email = %s, revolutTag = %s, payment_status = %s WHERE userID = %d",
+        "UPDATE users SET name = %s, email = %s, revolutTag = %s, payment_status = %s WHERE userID = %s",
         (name, email, revolutTag, payment_status, userID)
     )
-
-    # Save changes
     database.commit()
     database.close()
-    return
+    return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag, "payment_status": payment_status}})
+
 
 
 def getEventIdJson(conn, eventID):
