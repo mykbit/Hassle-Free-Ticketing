@@ -67,7 +67,6 @@ def updateClient(userID, name, email, password, revolutTag, eventID):
     database.close()
     return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email, "revolutTag": revolutTag}})
 
-
 def getClientDetails(userID):
     # Access DB
     database = connect_db()
@@ -83,24 +82,6 @@ def getClientDetails(userID):
     # Close the database connection
     database.close()
     return user
-
-def getEventDetails(eventID):
-    # Access DB
-    database = connect_db()
-    databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
-
-    # Query the database for event details
-    databaseCursor.execute(
-        "SELECT * FROM Events WHERE id = %s",
-        (eventID,)
-    )
-
-    event = databaseCursor.fetchone()
-
-    # Close the database connection
-    database.close()
-    return event
-
 #  Tickets
 def insertTicket(name, revTag, eventID, amountDue, amountPaid, receiptID):
     database = connect_db()
@@ -113,7 +94,6 @@ def insertTicket(name, revTag, eventID, amountDue, amountPaid, receiptID):
     database.commit()
     database.close()
     return json.dumps({"success": True})
-
 
 def getTicketDetails(regID):
     # Access DB
@@ -130,15 +110,6 @@ def getTicketDetails(regID):
     # Close the database connection
     database.close()
     return registration
-
-def getEventIdJson(conn, eventID):
-    database = connect_db()
-    databaseCursor = database.cursor()
-    databaseCursor.execute("SELECT eventID FROM Events WHERE id = %s", (eventID,))
-    event = databaseCursor.fetchone()
-    database.close()
-    #return as json
-    return json.dumps(event)  
 
 # Events
 def insertEvent(eventName, max, price="", date=""):
