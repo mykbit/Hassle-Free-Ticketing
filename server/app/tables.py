@@ -20,7 +20,7 @@ def create_events():
                 name VARCHAR(255) NOT NULL,
                 revTag VARCHAR(255),
                 eventID INT NOT NULL,
-                jvtToken VARCHAR(255) NOT NULL
+                jwtToken VARCHAR(255) NOT NULL
                 PRIMARY KEY (id)
             );
     """
