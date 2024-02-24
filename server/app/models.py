@@ -4,9 +4,6 @@ import os
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
 # from dotenv import load_dotenv
 
-# Load environment variables from the .env file
-# load_dotenv()
-
 def connect_db():
     # Retrieve database credentials from the environment
     db_host = os.environ.get('DATABASE_HOST')
@@ -33,3 +30,19 @@ def query_db(connection, query, args=()):
         cursor.execute(query, args)
         # Return the results from the query
         return cursor.fetchall()
+
+def insertUser(email, password, name, revTag="", eventID=""):
+    # Access DB
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    # Insert a new event into the "events" table
+    databaseCursor.execute(
+        "INSERT INTO users (email, password, name, revTag, eventID) VALUES (%s, %s, %s, %s, %d)",
+        (email, password, name, revTag, eventID)
+    )
+
+    # Save changes
+    database.commit()
+    database.close()
+    return
