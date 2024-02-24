@@ -181,3 +181,49 @@ def updateUser(userID, name, email, revolutTag, payment_status):
     database.commit()
     database.close()
     return
+
+
+# Check whether user has paid by going through registrants in an event and check to see if the 
+# registant is in bankStatement (Array for now)
+# If entry exists we set the status of the transaction as paid.
+# Needs to be updated for child tables  
+def hasPaid(db, event, user, bankStatement):
+    databaseCursor = db.cursor()
+
+    # Assuming 'event' table has columns 'registrant' and 'status'
+    query = f"""
+            SELECT registrant, status FROM {event} WHERE registrant = '{user}'
+    """
+    databaseCursor.execute(query)
+    result = databaseCursor.fetchone()
+
+    if result:
+        # If the user is found in the event table
+        registrant_status = result[1]
+        if user in bankStatement:
+            # If the user is in the bankStatement array, set status to 'paid'
+            if registrant_status != 'paid':
+                databaseCursor.execute("UPDATE {event} SET status = 'paid' WHERE registrant = '{user}'")
+                db.commit()
+            else:
+                print(f"User {user} is already marked as paid.")
+        else:
+            # If the user is not in the bankStatement array, set status to 'pending'
+            if registrant_status != 'pending':
+                databaseCursor.execute("UPDATE {event} SET status = 'pending' WHERE registrant = '{user}'")
+                db.commit()
+            else:
+                print(f"User {user} is already marked as pending.")
+    else:
+        # If the user is not found in the event table, you might want to handle this case accordingly
+        print(f"User {user} not found in the {event} table.")
+
+# # Test
+# event_table_name = "your_event_table_name"
+# user_to_check = "user_to_check"
+# bank_statement = ["user1", "user2", "user3"]  # Replace with your actual bank statement array
+# hasPaid(db, event_table_name, user_to_check, bank_statement)
+
+
+# 
+def validate_user(email, password)
