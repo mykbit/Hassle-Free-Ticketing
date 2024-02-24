@@ -1,7 +1,6 @@
 from functools import wraps
 import jwt
-from flask import request
-from flask import current_app
+from flask import request, current_app
 from .models import query_db, connect_db
 
 def token_required(func):
@@ -36,4 +35,3 @@ def token_required(func):
         return func(current_user, *args, **kwargs)
     
     return decorated
-        
