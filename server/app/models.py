@@ -35,21 +35,29 @@ def connect_db():
 #           eventName: Name of event.
 #           eventDate: Date range when event should be active
 #           availableTickets: Number of tickets for event (default - 0)
-def insertEvent(eventID, organiserID, eventLink, eventName, eventDate, availableTickets=0):
+def insertUser(json_input):
+    data = json.loads(json_input)
+    name = data['name']
+    email = data['email']
+    revolutTag = data['revolutTag']
+    payment_status = data['payment_status']
+    events = data['events']
+    
     # Access DB
     database = init_db()
     databaseCursor = database.cursor()
 
-    # Insert a new event into the "events" table
+    # Insert a new user into the "users" table
     databaseCursor.execute(
-        "INSERT INTO events (eventID, organiserID, eventLink, eventName, eventDate, availableTickets) VALUES (%s, %s, %s, %s, %s, %s)", 
-        (eventID, organiserID, eventLink, eventName, eventDate, availableTickets)
+        "INSERT INTO users (name, email, revolutTag, payment_status, event) VALUES (%s, %s, %s, %s, %s)",
+        (name, email, revolutTag, payment_status, events)
     )
 
     # Save changes
     database.commit()
     database.close()
-    return
+    return json.dumps({"success": True})
+
 
 
 def getEventDetails(eventID):
