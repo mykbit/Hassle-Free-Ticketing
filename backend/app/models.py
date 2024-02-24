@@ -1,6 +1,6 @@
 import pymysql
 import os
-
+import json
 # Used to test the connection to the database from local environment, which allows bypass of Github Secrets
 from dotenv import load_dotenv
 
@@ -159,7 +159,7 @@ def getRegistrationDetails(regID):
     databaseCursor.execute(
         "SELECT * FROM registrations WHERE registrationID = %s",
         (regID,)
-    )
+    ) 
 
     registration = databaseCursor.fetchone()
     # Close the database connection
@@ -181,6 +181,16 @@ def updateUser(userID, name, email, revolutTag, payment_status):
     database.commit()
     database.close()
     return
+
+
+def getEventIdJson(conn, eventID):
+    database = init_db()
+    databaseCursor = database.cursor()
+    databaseCursor.execute("SELECT eventID FROM events WHERE eventID = %s", (eventID,))
+    event = databaseCursor.fetchone()
+    database.close()
+    #return as json
+    return json.dumps(event)  
 
 
 # Check whether user has paid by going through registrants in an event and check to see if the 
