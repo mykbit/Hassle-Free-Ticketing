@@ -41,7 +41,7 @@ def insertEvent(eventID, organiserID, eventLink, eventName, eventDate, available
 
     # Insert a new event into the "events" table
     databaseCursor.execute(
-        "INSERT INTO events (eventID, organiserID, eventLink, eventName, eventDate, availableTickets) VALUES (%d, %d, %s, %s, %s, %s)", 
+        "INSERT INTO events (eventID, organiserID, eventLink, eventName, eventDate, availableTickets) VALUES (%s, %s, %s, %s, %s, %s)", 
         (eventID, organiserID, eventLink, eventName, eventDate, availableTickets)
     )
 

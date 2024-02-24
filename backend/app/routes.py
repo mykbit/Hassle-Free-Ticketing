@@ -7,7 +7,8 @@ routes = Blueprint('routes', __name__)
 @routes.route('/')
 def index():
     try:
-        models.insert("Sample Event", "2024-02-23", "sample_payment_address")
+        models.insertEvent("123", "123", "sample_payment_address", "organiser123", "100", "100")
+
         return 'Insertion successful!'
     except Exception as e:
         return f'Error during insertion: {str(e)}'
