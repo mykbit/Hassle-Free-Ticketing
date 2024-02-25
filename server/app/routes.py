@@ -182,8 +182,8 @@ def create_event(current_user):
 @token_required
 def get_user(current_user):
     user_data = {
-        "email": current_user['email'],
-        "name": current_user['name']
+        "email": current_user[0],
+        "name": current_user[2]
     }
 
     return {
