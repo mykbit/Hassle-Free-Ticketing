@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
-from app.models import insertClient, insertEvent, getEventDetails, validate_user, session_add, get_contents_clients, get_contents_sessions, create_event_db
+from app.models import insertClient, getEventDetails, getClient, insertTicket, validate_payment, validate_user, session_add, get_contents_clients, get_contents_sessions, create_event_db
 
 from app import utils
 import jwt
@@ -132,41 +132,25 @@ def get_event(event_id):
             "data": None,
             "error": None
         }, 404
-    
+
 @routes.route('/event/<int:event_id>/register', methods=['POST'])
-def register_for_event(event_id):
-    event_id = request.view_args['event_id']
-    client = request.json
-    if not event_id:
-        return {
-            "message": "Please provide event id",
-            "data": None,
-            "error": "Bad request"
-        }, 400
+@token_required
+def register_for_event(current_user, event_id):
+    # Register client for the event
+    try:
+        insertTicket(event_id, current_user[0], False)
+        return jsonify({
+            "message": "Client registered for event successfully",
+            "data": event_id,
+            "error": None
+        }), 201
     
-    if not client:
-        return {
-            "message": "Please provide client details",
+    except Exception as e:
+        return jsonify({
+            "message": "Failed to register client for event",
             "data": None,
-            "error": "Bad request"
-        }, 400
-    
-    email = client.get('email')
-    if not email:
-        return {
-            "message": "Please provide email",
-            "data": None,
-            "error": "Bad request"
-        }, 400
-
-    # Make a query to the database to check if the client already exists
-
-    # Next, save the client to the database
-    return {
-        "message": "client registered for event successfully",
-        "data": None,
-        "error": None
-    }, 201
+            "error": str(e)
+        }), 500
 
 @routes.route('/create-event', methods=['POST'])
 @token_required
@@ -193,15 +177,16 @@ def create_event(current_user):
             "data": None,
             "error": "Internal server error"
         }, 500
+    
+
 
 
 @routes.route('/user', methods=['GET'])
 @token_required
 def get_user(current_user):
     user_data = {
-        "email": current_user['user_id'],
-        "name": current_user['name'],
-        "email": current_user['email']
+        "email": current_user['email'],
+        "name": current_user['name']
     }
 
     return {
