@@ -312,15 +312,29 @@ def validate_payment(transfers, event_id):
 
         name = transfer['Description'].replace("FROM ", "")
     
+        # query = f"""
+        #     UPDATE Tickets AS t 
+        #     JOIN (SELECT id
+        #         FROM Tickets AS t2
+        #         JOIN Clients AS c2 ON t2.client_email = c2.email
+        #         WHERE c2.name = '{name}' AND t2.valid IS FALSE
+        #         LIMIT {ticket2validate}) AS sub
+        #     ON t.id = sub.id
+        #     SET t.valid = TRUE;
+        # """
+
+
         query = f"""
-            UPDATE Tickets AS t 
-            JOIN (SELECT id
-                FROM Tickets AS t2
-                JOIN Clients AS c2 ON t2.client_email = c2.email
-                WHERE c2.name = '{name}' AND t2.valid IS FALSE
-                LIMIT {ticket2validate}) AS sub
-            ON t.id = sub.id
-            SET t.valid = TRUE;
+            SELECT id FROM Tickets
+            WHERE client_email = (SELECT email FROM Clients WHERE name = '{name}') AND valid IS FALSE
+            LIMIT '{ticket2validate}';
+        """
+
+        databaseCursor.execute(query)
+        res_id = databaseCursor.fetchone()
+
+        query = f"""
+            UPDATE Tickets SET valid = TRUE WHERE '{res_id}' = id; 
         """
 
         databaseCursor.execute(query)
