@@ -310,7 +310,7 @@ def validate_payment(transfers, event_id):
 
         print(ticket2validate, file=sys.stderr)
 
-        name = transfer['Description'].replace("FROM ", "")
+        name = transfer['Description'].replace("From ", "")
     
         # query = f"""
         #     UPDATE Tickets AS t 
@@ -324,22 +324,31 @@ def validate_payment(transfers, event_id):
         # """
 
 
-        query = f"""
+        secondQuery = f"""
             SELECT id FROM Tickets
-            WHERE client_email = (SELECT email FROM Clients WHERE name = '{name}') AND valid IS FALSE
-            LIMIT '{ticket2validate}';
+            WHERE client_email = (SELECT email FROM Clients WHERE name = '{name}' AND valid IS FALSE)
+            LIMIT {ticket2validate};
         """
 
-        databaseCursor.execute(query)
+        print(secondQuery, file=sys.stderr)
+
+        databaseCursor.execute(secondQuery)
         res_id = databaseCursor.fetchone()
+        print(res_id, file=sys.stderr)
 
-        query = f"""
-            UPDATE Tickets SET valid = TRUE WHERE '{res_id}' = id; 
+        query = """
+                UPDATE Tickets SET valid = TRUE WHERE id = %s;
         """
 
-        databaseCursor.execute(query)
+        databaseCursor.execute(query, (res_id,))
         database.commit()
         result = databaseCursor.fetchone()
+
+
+        query = f"""Select * from Tickets;"""
+        databaseCursor.execute(query)
+        result = databaseCursor.fetchall()
+        print(result, file=sys.stderr)
 
         query = f"""
             INSERT INTO Payments (timestamp, description, amount)
