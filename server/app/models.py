@@ -169,13 +169,13 @@ def getEventIdJson(eventID):
 
 # Queries:
 # Check whether user has paid 
-def hasPaid(email):
+def hasPaid(email, event_id):
     db = connect_db()
     databaseCursor = db.cursor()
 
     # Use parameterized queries to avoid SQL injection
-    query = "SELECT valid FROM Tickets WHERE client_email = %s"
-    databaseCursor.execute(query, (email,))
+    query = "SELECT valid FROM Tickets WHERE client_email = %s AND event_id = %s"
+    databaseCursor.execute(query, (email, event_id))
     result = databaseCursor.fetchone()
 
     return result;

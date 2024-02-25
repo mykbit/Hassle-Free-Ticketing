@@ -119,7 +119,7 @@ def get_event(current_user, event_id):
     
     reg = get_registration(event_id, current_user[0])
     
-    paid = hasPaid(current_user[0])
+    paid = hasPaid(current_user[0], event_id)
     
     eventDetails = getEventDetails(event_id)
 
