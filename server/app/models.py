@@ -1,3 +1,4 @@
+import sys
 from flask import current_app, jsonify
 import jwt
 import pymysql
@@ -307,6 +308,8 @@ def validate_payment(transfers, event_id):
         result = databaseCursor.fetchone()
         ticket2validate = int(float(transfer['Amount']) / result[0])
 
+        print(ticket2validate, file=sys.stderr)
+
         name = transfer['Description'].replace("FROM ", "")
     
         query = f"""
@@ -321,6 +324,7 @@ def validate_payment(transfers, event_id):
         """
 
         databaseCursor.execute(query)
+        database.commit()
         result = databaseCursor.fetchone()
 
         query = f"""
@@ -328,3 +332,4 @@ def validate_payment(transfers, event_id):
             VALUES ('{transfer['timestamp']}', '{transfer['Description']}', {int(float(transfer['Amount']))});
         """
         databaseCursor.execute(query)
+        database.commit()

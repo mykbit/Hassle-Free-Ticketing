@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-orange-100;
+  @apply h-screen;
+}
+
+.cartoon-box {
+  @apply bg-white;
+  @apply border-2 border-black;
+  @apply text-black;
+}
+
+.cartoon-box.hover:hover {
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 100);
+}
+
+.cartoon-box.active:active {
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 100);
+}
+
+.cartoon-box.focus:focus {
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 100);
+}
+
+.cartoon-box.tinted {
+  @apply bg-orange-100;
+}
+
+.cartoon-box.shadow {
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 100);
+}
+
+.tinted {
+  @apply bg-orange-50;
+}

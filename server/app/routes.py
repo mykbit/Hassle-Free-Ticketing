@@ -201,7 +201,7 @@ def get_user(current_user):
 
 @routes.route('/bank-statement/<int:event_id>', methods=['POST'])
 @token_required
-def bank_statement(event_id):
+def bank_statement(_, event_id):
     if 'file' not in request.files or request.files['file'].filename == '':
         return {
             "message": "File expected",
@@ -231,6 +231,8 @@ def bank_statement(event_id):
     statements = utils.parse_csv(itarable)
     statements = utils.filter_payments(statements)
     # FIXME: pass event id
+    # print(statements, file=sys.stderr)
+    # print(event_id, file=sys.stderr)
     validate_payment(statements, event_id)
 
     return {
