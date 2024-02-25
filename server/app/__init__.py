@@ -14,6 +14,9 @@ def create_app():
     # Load configuration from config.py
     app.config.from_object(Config)
 
+    
+    
+
     # Create tables in the database
     with app.app_context():
         create_tables()
@@ -28,7 +31,11 @@ def create_app():
     # Import routes after initializing app to avoid circular imports
     from .routes import routes
 
+    CORS(routes, resources={r"/bank-statement/*": {"origins": "http://localhost:8080"}})
+
     # Register routes with the Flask app. You can set a different prefix for all routes as well as the home route.
     app.register_blueprint(routes, url_prefix='/')
+
+    
 
     return app
