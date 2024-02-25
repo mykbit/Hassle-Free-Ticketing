@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
-from app.models import insertClient, insertEvent, getEventDetails, validate_user, session_add, get_contents_clients, get_contents_sessions
+from app.models import insertClient, insertEvent, getEventDetails, validate_user, session_add, get_contents_clients, get_contents_sessions, create_event_db
 
 from app import utils
 import jwt
@@ -86,7 +86,7 @@ def login():
                 "message": "client logged in successfully",
                 "data": {
                     "token": token,
-                    "expiration": expiryDate
+                    "expiryDate": expiryDate
                 },
                 "error": None
             }, 200
@@ -167,6 +167,33 @@ def register_for_event(event_id):
         "data": None,
         "error": None
     }, 201
+
+@routes.route('/create-event', methods=['POST'])
+@token_required
+def create_event(current_user):
+    event = request.get_json()
+    if not event:
+        return {
+            "message": "Please provide event details",
+            "data": None,
+            "error": "Bad request"
+        }, 400
+    
+    # Add the event to the database
+    event = create_event_db(event['name'], event['price'], event['date'], current_user[0])
+    if event:
+        return {
+            "message": "Event created successfully",
+            "data": event[0],
+            "error": None
+        }, 201
+    else:
+        return {
+            "message": "An error occurred",
+            "data": None,
+            "error": "Internal server error"
+        }, 500
+
 
 @routes.route('/user', methods=['GET'])
 @token_required

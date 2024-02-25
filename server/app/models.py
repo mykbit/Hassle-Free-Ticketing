@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import current_app, jsonify
 import jwt
 import pymysql
 import os
@@ -90,16 +90,7 @@ def updateClient(userID, name, email, password):
     database.close()
     return json.dumps({"success": True, "userID": userID, "updatedInfo": {"name": name, "email": email}})
 
-def getClientDetails(userID):
-    # Access DB
-    database = connect_db()
-    databaseCursor = database.cursor(pymysql.cursors.DictCursor)  # Use a DictCursor for named columns
 
-    # Query the database for user details
-    databaseCursor.execute(
-        "SELECT * FROM Clients WHERE id = %s",
-        (userID,)
-    )
 
     user = databaseCursor.fetchone()
     # Close the database connection
@@ -240,6 +231,54 @@ def session_add(email):
     database.close()
 
     return token, expiry_date
+
+def create_event_db(name, price, date, holder_email):
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    query = f"""
+            INSERT INTO Events (name, price, date, holder_email) VALUES ('{name}', '{price}', '{date}', '{holder_email}')
+    """
+    databaseCursor.execute(query)
+    database.commit()
+    databaseCursor.execute("SELECT * from Events WHERE id = LAST_INSERT_ID()")
+    result = databaseCursor.fetchone()
+    database.close()
+
+    return result
+
+def check_token(token):
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    query = """
+            SELECT client_email FROM Sessions WHERE token = %s
+    """
+    databaseCursor.execute(query, (token,))
+    result = databaseCursor.fetchone()
+
+    database.close()
+
+    if result:
+        return result[0]  # Return the first column of the result
+    else:
+        return False
+
+def getClient(email):
+    # Access DB
+    database = connect_db()
+    databaseCursor = database.cursor()  # Use a DictCursor for named columns
+
+    # Query the database for user details
+    databaseCursor.execute(
+        "SELECT * FROM Clients WHERE email = %s",
+        (email,)
+    )
+
+    res = databaseCursor.fetchone()
+
+    return res
+
 
 def query_db(connection, query, args=()):
     # Create a cursor object to execute SQL queries
