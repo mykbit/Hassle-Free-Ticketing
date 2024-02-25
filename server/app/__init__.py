@@ -3,11 +3,13 @@ from flask import Flask
 from .models import connect_db
 from .tables import create_tables
 from .config import Config
+from flask_cors import CORS
 
 # Function to create and configure the Flask app
 def create_app():
     # Initialize Flask app
     app = Flask(__name__)
+    CORS(app)
 
     # Load configuration from config.py
     app.config.from_object(Config)
