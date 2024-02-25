@@ -129,7 +129,7 @@ def get_event(current_user, event_id):
             "data": {
                 "eventDetails" : eventDetails,
                 "isRegistered" : reg,
-                "isPaid"       : paid[0]==1,
+                "isPaid"       : paid != None and paid[0]==1,
             },
             "error": None
         }, 200

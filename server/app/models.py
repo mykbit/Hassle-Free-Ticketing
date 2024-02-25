@@ -102,7 +102,7 @@ def insertTicket(eventID, email, valid=True):
     database = connect_db()
     with database.cursor() as cursor:
         cursor.execute(
-            "INSERT INTO Tickets (eventID, email, valid) VALUES (%s, %s, %s)",
+            "INSERT INTO Tickets (event_id, client_email, valid) VALUES (%s, %s, %s)",
             (eventID, email, valid)
         )
     database.commit()

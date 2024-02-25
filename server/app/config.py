@@ -7,6 +7,8 @@ class Config:
     # Get the JWT secret key from the environment
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
 
+    CORS_HEADERS=['Content-Type','Authorization']
+
     # Debugging and development settings
     DEBUG = True
 
