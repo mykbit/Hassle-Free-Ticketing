@@ -178,9 +178,6 @@ def create_event(current_user):
             "error": "Internal server error"
         }, 500
     
-
-
-
 @routes.route('/user', methods=['GET'])
 @token_required
 def get_user(current_user):
@@ -195,8 +192,9 @@ def get_user(current_user):
         "error": None
     }, 200
 
-@routes.route('/bank-statement', methods=['POST'])
-def bank_statement():
+@routes.route('/bank-statement/<int:event_id>', methods=['POST'])
+@token_required
+def bank_statement(event_id):
     if 'file' not in request.files or request.files['file'].filename == '':
         return {
             "message": "File expected",
@@ -226,7 +224,7 @@ def bank_statement():
     statements = utils.parse_csv(itarable)
     statements = utils.filter_payments(statements)
     # FIXME: pass event id
-    validate_payment(statements, 'event_id')
+    validate_payment(statements, event_id)
 
     return {
         "message": "File uploaded successfully",
