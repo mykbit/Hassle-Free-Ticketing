@@ -43,8 +43,20 @@ def create_tables():
                 FOREIGN KEY (client_email)  REFERENCES Clients(email)
             );
     """
+    create_payments_table_query = """
+            CREATE TABLE IF NOT EXISTS Payments (
+                id              INT             NOT NULL    AUTO_INCREMENT,
+                timestamp       TIMESTAMP       NOT NULL,
+                description     VARCHAR(255)    NOT NULL,
+                amount          INT             NOT NULL,
+                ticket_id       INT,
+                FOREIGN KEY (ticket_id) REFERENCES Tickets(id),
+                PRIMARY KEY (id)
+            );
+    """
+
     query_db(connect_db(), create_clients_table_query, ())
     query_db(connect_db(), create_events_table_query, ())
     query_db(connect_db(), create_tickets_table_query, ())
     query_db(connect_db(), create_sessions_table_query, ())
-
+    query_db(connect_db(), create_payments_table_query, ())

@@ -288,3 +288,49 @@ def query_db(connection, query, args=()):
         # Return the results from the query
         return cursor.fetchall()
 
+def get_latest():
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    query = f"""
+        SELECT timestamp FROM Payments
+        ORDER BY timestamp DESC
+        LIMIT 1 ;
+    """
+    databaseCursor.execute(query)
+    result = databaseCursor.fetchone()
+    return result
+
+def validate_payment(transfers, event_id):
+    database = connect_db()
+    databaseCursor = database.cursor()
+
+    for transfer in transfers:
+        query = f"""
+            SELECT price FROM Events WHERE id='{event_id}';
+        """
+        databaseCursor.execute(query)
+        result = databaseCursor.fetchone()
+        ticket2validate = int(float(transfer['Amount']) / result[0])
+
+        name = transfer['Description'].replace("FROM ", "")
+    
+        query = f"""
+            UPDATE Tickets AS t 
+            JOIN (SELECT id
+                FROM Tickets AS t2
+                JOIN Clients AS c2 ON t2.client_email = c2.email
+                WHERE c2.name = '{name}' AND t2.valid IS FALSE
+                LIMIT {ticket2validate}) AS sub
+            ON t.id = sub.id
+            SET t.valid = TRUE;
+        """
+
+        databaseCursor.execute(query)
+        result = databaseCursor.fetchone()
+
+        query = f"""
+            INSERT INTO Payments (timestamp, description, amount)
+            VALUES ('{transfer['timestamp']}', '{transfer['Description']}', {int(float(transfer['Amount']))});
+        """
+        databaseCursor.execute(query)
