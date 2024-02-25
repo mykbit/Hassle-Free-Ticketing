@@ -83,18 +83,58 @@ export const getUser = async (): Promise<{ email: string; name: string }> => {
   return result.data
 }
 
-export const createEvent = async (name: string, ticketPrice: number, date: string) => {
+export const createEvent = async (name: string, price: number, date: string) => {
   const token = getToken()
   if (token === null) throw new Error('Not logged in')
 
-  const response: Response = await fetch(`${apiBaseUrl}/user`, {
+  const response: Response = await fetch(`${apiBaseUrl}/create-event`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ name, ticketPrice, date }),
+    body: JSON.stringify({ name, price, date }),
   })
 
   if (!response.ok) throw new Error('Failed to create event')
 
   const result: ResponseDataWrapper<number> = await response.json()
-  return result
+  return result.data
+}
+
+export const getEvent = async (id: number) => {
+  const token = getToken()
+  if (token === null) throw new Error('Not logged in')
+
+  const response: Response = await fetch(`${apiBaseUrl}/event/${id}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  })
+
+  if (!response.ok) throw new Error('Failed to create event')
+
+  const result: ResponseDataWrapper<{
+    eventDetails: {
+      date: string
+      holder_email: string
+      id: number
+      name: string
+      price: number
+    }
+    isPaid: boolean
+    isRegistered: boolean
+  }> = await response.json()
+  return result.data
+}
+
+export const registerForEvent = async (eventId: number) => {
+  const token = getToken()
+  if (token === null) throw new Error('Not logged in')
+
+  const response: Response = await fetch(`${apiBaseUrl}/event/${eventId}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  })
+
+  if (!response.ok) throw new Error('Failed to register for event')
+
+  const result: ResponseDataWrapper<number> = await response.json()
+  return result.data
 }

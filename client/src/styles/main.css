@@ -3,14 +3,16 @@
 @tailwind utilities;
 
 body {
-  @apply bg-orange-100;
+  @apply bg-orange-50;
   @apply h-screen;
+  overflow-x: hidden;
 }
 
 .cartoon-box {
   @apply bg-white;
   @apply border-2 border-black;
   @apply text-black;
+  transition: box-shadow 0.15s;
 }
 
 .cartoon-box.hover:hover {

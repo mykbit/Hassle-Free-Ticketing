@@ -18,6 +18,14 @@ services:
     expose:
       - "8000"
 
+  client:
+    image: sweng26/client:latest
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
   db:
     image: mysql:8.0
     restart: always
