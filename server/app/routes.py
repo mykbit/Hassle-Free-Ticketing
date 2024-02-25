@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app
 from app.auth import token_required
-from app.models import insertClient, getEventDetails, getClient, insertTicket, validate_payment, validate_user, session_add, get_contents_clients, get_contents_sessions, create_event_db
+from app.models import insertClient, getEventDetails, hasPaid, get_registration, getClient, insertTicket, validate_payment, validate_credentials, session_add, get_contents_clients, get_contents_sessions, create_event_db
 
 from app import utils
 import jwt
@@ -79,7 +79,7 @@ def login():
         
         # Make a query to the database to check if the client exist
 
-        if validate_user(client['email'], client['password']):
+        if validate_credentials(client['email'], client['password']):
 
             token, expiryDate = session_add(client['email'])
             return {
@@ -106,7 +106,8 @@ def login():
         }, 500
      
 @routes.route('/event/<int:event_id>', methods=['GET'])
-def get_event(event_id):
+@token_required
+def get_event(current_user, event_id):
     event_id = request.view_args['event_id']
     if not event_id:
         return {
@@ -115,15 +116,21 @@ def get_event(event_id):
             "error": "Bad request"
         }, 400
     
-    # insertClient("name", "test", "pass")
-    # insertEvent("EventName", event_id, "2024-02-24", "test")
-
+    
+    reg = get_registration(event_id, current_user[0])
+    
+    paid = hasPaid(current_user[0])
+    
     eventDetails = getEventDetails(event_id)
 
     if eventDetails:
         return {
             "message": "Event retrieved successfully",
-            "data": eventDetails,
+            "data": {
+                "eventDetails" : eventDetails,
+                "isRegistered" : reg,
+                "isPaid"       : paid[0]==1,
+            },
             "error": None
         }, 200
     else:

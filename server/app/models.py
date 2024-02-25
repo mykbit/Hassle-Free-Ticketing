@@ -169,38 +169,32 @@ def getEventIdJson(eventID):
 
 # Queries:
 # Check whether user has paid 
-def hasPaid(db, eventName, user, bankStatement):
-    databaseCursor = db.cursor(pymysql.cursors.DictCursor)
+def hasPaid(email):
+    db = connect_db()
+    databaseCursor = db.cursor()
 
     # Use parameterized queries to avoid SQL injection
-    query = "SELECT status FROM Tickets WHERE client_email = %s AND event_id = (SELECT id FROM Events WHERE name = %s)"
-    databaseCursor.execute(query, (user, eventName))
+    query = "SELECT valid FROM Tickets WHERE client_email = %s"
+    databaseCursor.execute(query, (email,))
     result = databaseCursor.fetchone()
 
-    if result:
-        registrant_status = result['status']
-        if user in bankStatement:
-            if registrant_status != 'paid':
-                update_query = "UPDATE Tickets SET status = 'paid' WHERE client_email = %s AND event_id = (SELECT id FROM Events WHERE name = %s)"
-                databaseCursor.execute(update_query, (user, eventName))
-                db.commit()
-            else:
-                print(f"User {user} is already marked as paid.")
-        else:
-            if registrant_status != 'pending':
-                update_query = "UPDATE Tickets SET status = 'pending' WHERE client_email = %s AND event_id = (SELECT id FROM Events WHERE name = %s)"
-                databaseCursor.execute(update_query, (user, eventName))
-                db.commit()
-            else:
-                print(f"User {user} is already marked as pending.")
-    else:
-        print(f"User {user} not found for event {eventName}.")
+    return result;
 
+def get_registration(event_id, email):
+    database = connect_db()
+    databaseCursor = database.cursor()  # Use a DictCursor for named columns
+    databaseCursor.execute("SELECT * FROM Tickets WHERE event_id = %s AND client_email = %s", (event_id, email))
+    result = databaseCursor.fetchone()
+    database.close()
+    if result:
+        return True
+    else:
+        return False
 
 # credentials: json
 # "email": String
 # "password": String
-def validate_user(email, password):
+def validate_credentials(email, password):
     database = connect_db()
     databaseCursor = database.cursor()
 
