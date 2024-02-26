@@ -1,7 +1,7 @@
 <script>
-  import { query, linkHandle } from 'svelte-micro'
   import { fly } from 'svelte/transition'
   import { backOut } from 'svelte/easing'
+  import { query, linkHandle } from 'svelte-micro'
   import { getEvent, getUser, registerForEvent } from '../lib/api'
 
   $: id = new URLSearchParams($query)?.get('id')
@@ -48,7 +48,7 @@
               </button>
             {:else if (event.isRegistered || redistered) && !event.isPaid}
               <a
-                href={`/event/checkout?id=${event.eventDetails.id}`}
+                href={`/event/checkout?id=${id}`}
                 use:linkHandle
                 class="cartoon-box hover focus h-min cursor-pointer px-6 py-2 font-medium focus:outline-none"
               >
